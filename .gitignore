@@ -1,0 +1,4 @@
+*.class
+config.properties
+.DS_Store
+*.log

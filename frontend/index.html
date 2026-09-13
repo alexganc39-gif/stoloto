@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Воздушный Шар</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <div id="netWarn" class="net-warn hidden">⚠ Соединение с сервером потеряно. Переподключение…</div>
+
+  <header class="topbar">
+    <button id="btnRules" class="icon-btn">? Правила</button>
+    <div class="balance">Баланс: <span id="balanceVal">—</span> <span class="coin">◎</span></div>
+    <div class="points">Очки: <span id="pointsVal">0</span> 🏆</div>
+    <button id="btnSound" class="icon-btn" title="Звук вкл/выкл">🔊</button>
+    <button id="btnAdmin" class="icon-btn">⚙ Настройки</button>
+  </header>
+
+  <!-- THEME SELECT -->
+  <section id="screenTheme" class="screen theme-screen">
+    <div class="sky-bg" id="skyBg"></div>
+    <h1>Воздушный Шар</h1>
+    <p class="subtitle">Выберите тему полёта</p>
+    <div class="theme-cards">
+      <button class="theme-card red" data-theme="RED">
+        <div class="balloon-icon">🎈</div>
+        <div class="theme-name">Красный шар</div>
+        <div class="theme-meta"><span id="redLevels">12</span> уровней · выше риск</div>
+      </button>
+      <button class="theme-card green" data-theme="GREEN">
+        <div class="balloon-icon">🎈</div>
+        <div class="theme-name">Зелёный шар</div>
+        <div class="theme-meta"><span id="greenLevels">9</span> уровней · стабильнее</div>
+      </button>
+    </div>
+    <button id="btnOpenTournamentCard" class="rating-card">
+      <div class="rating-badge">🏆 <span id="tournamentDaysLeft">25</span> дней</div>
+      <div class="rating-text">
+        <div class="rating-title">Рейтинг участников</div>
+        <div class="rating-subtitle">Успей заработать больше всех очков и получай награды</div>
+      </div>
+    </button>
+  </section>
+
+  <!-- BET SELECT -->
+  <section id="screenBet" class="screen hidden">
+    <div class="bet-header">
+      <button id="btnBackToTheme" class="icon-btn">← Тема</button>
+      <div id="betThemeLabel" class="theme-label"></div>
+    </div>
+    <p class="subtitle">Выберите фрагмент пазла — ставка и бустер</p>
+    <div id="fragments" class="fragments"></div>
+    <button id="btnStart" class="primary-btn" disabled>Начать</button>
+    <button id="btnFloatingTournament" class="floating-cup-btn" title="Турнирная таблица">
+      🏆
+      <span id="floatingTournamentTimer" class="floating-cup-timer"></span>
+    </button>
+
+    <div class="history-block">
+      <h3>История игр</h3>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section id="screenGame" class="screen hidden">
+    <div class="game-hud">
+      <div id="multiplierDisplay" class="multiplier">1.00x</div>
+      <div id="pointsPopup" class="points-popup"></div>
+    </div>
+    <div class="leaderboard-strip" id="leaderboardStrip"></div>
+    <div class="track-wrap" id="trackWrap">
+      <div id="track" class="track"></div>
+      <div id="balloonSprite" class="balloon-sprite">🎈</div>
+    </div>
+    <div class="onboarding-tip hidden" id="onboardingTip">
+      <span>Нажми «Забрать» до того, как шар лопнет</span>
+      <div class="tip-arrow">↓</div>
+    </div>
+    <div class="game-footer">
+      <div class="potential-win">Ставка: <span id="betAmountLabel"></span> · Возможный выигрыш: <span id="potentialWin">—</span></div>
+      <button id="btnCashout" class="cashout-btn" disabled>ЗАБРАТЬ</button>
+    </div>
+    <div id="cashedOutBanner" class="cashed-banner hidden">Могли бы забрать больше — шар всё ещё летит…</div>
+  </section>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="modal hidden">
+    <div class="modal-card">
+      <button class="modal-close" id="btnCloseResult">✕</button>
+      <div id="resultTitle" class="result-title"></div>
+      <div id="resultBody" class="result-body"></div>
+      <details id="fairnessBlock" class="fairness-block hidden">
+        <summary>Проверка честности</summary>
+        <div id="fairnessContent" class="fairness-content"></div>
+      </details>
+      <div id="rewardProgress" class="reward-progress hidden"></div>
+      <div class="result-actions">
+        <button id="btnRepeatSame" class="repeat-btn">🔁 Повторить ту же ставку</button>
+        <button id="btnPlayAgain" class="primary-btn">Играть снова</button>
+        <button id="btnHome" class="secondary-btn">Главная</button>
+      </div>
+      <div class="idle-note">Автопереход через <span id="idleCounter">10</span> с бездействия…</div>
+    </div>
+  </div>
+
+  <!-- RULES MODAL -->
+  <div id="rulesModal" class="modal hidden">
+    <div class="modal-card wide">
+      <button class="modal-close" id="btnCloseRules">✕</button>
+      <h2>Правила игры</h2>
+      <div class="rules-text">
+        <p><b>1. Выбор темы и ставки.</b> Красный шар — 12 уровней (выше риск/награда), зелёный — 9 (стабильнее). Выберите фрагмент пазла: он задаёт сумму ставки в бонусных баллах и бустер (×1 — без усиления, ×2, ×3, ×4).</p>
+        <p><b>2. Полёт.</b> После нажатия «Начать» бонусы списываются, и шар начинает подниматься. Коэффициент выигрыша растёт по формуле <code>k(t) = e^(rate·t)</code>. Момент «краха» (crash) вычислен сервером ДО старта раунда — клиент не может на него повлиять.</p>
+        <p><b>3. Забрать (cashout).</b> После первого уровня можно нажать «Забрать»: выигрыш = ставка × текущий коэффициент, фиксируется немедленно. Шар продолжает лететь до краха, но сумма уже не меняется.</p>
+        <p><b>4. Бустер.</b> Если выбран бустер ×2/×3/×4, он «сидит» на случайном уровне (позицию выбирает сервер). Если шар долетает до этого уровня раньше cashout — коэффициент умножается на значение бустера.</p>
+        <p><b>5. Проигрыш.</b> Если вы не успели забрать выигрыш до краха — ставка сгорает.</p>
+        <p><b>6. Очки и награда.</b> За каждый пройденный уровень начисляются игровые очки (независимо от бонусных баллов), плюс бонус за активацию бустера и за успешный cashout. По итогам любого раунда (выигрыш или проигрыш) выдаётся кусочек коллекционного пазла.</p>
+        <p><b>7. Честность.</b> Перед стартом раунда сервер присылает хеш (commitHash) от секретного seed'а и точки краха. После завершения раунда seed раскрывается — вы можете пересчитать SHA-256(seed + ":" + crashMultiplier) и сверить с хешем, полученным до старта.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOURNAMENT MODAL -->
+  <div id="tournamentModal" class="modal hidden">
+    <div class="modal-card wide">
+      <button class="modal-close" id="btnCloseTournament">✕</button>
+      <h2>🏆 Турнирная таблица</h2>
+      <p class="subtitle">Осталось: <span id="tournamentHoursLeft">—</span> ч. · Ваше место: <span id="tournamentMyRank">—</span></p>
+      <div id="tournamentTopThree" class="tournament-top3"></div>
+      <div id="tournamentList" class="tournament-list"></div>
+    </div>
+  </div>
+
+  <!-- UPSELL MODAL: "Закрепи успех" -->
+  <div id="upsellModal" class="modal hidden">
+    <div class="modal-card upsell-card">
+      <button class="modal-close" id="btnCloseUpsell">✕</button>
+      <div class="upsell-title">🎟 Закрепи успех!</div>
+      <div id="upsellBody" class="upsell-body"></div>
+      <button id="btnBuyTickets" class="primary-btn">Купить</button>
+      <div class="upsell-timeout">Закроется через <span id="upsellCountdown">10</span> с</div>
+    </div>
+  </div>
+
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="modal hidden">
+    <div class="modal-card wide">
+      <button class="modal-close" id="btnCloseAdmin">✕</button>
+      <h2>Настройки игры (без изменения кода)</h2>
+      <p class="subtitle">Изменения применяются к <b>новым</b> раундам сразу после сохранения.</p>
+      <form id="adminForm" class="admin-form"></form>
+      <button id="btnSaveAdmin" class="primary-btn">Сохранить</button>
+      <div id="adminSaved" class="saved-note hidden">Сохранено ✓</div>
+    </div>
+  </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
