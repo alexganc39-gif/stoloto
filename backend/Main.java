@@ -16,7 +16,10 @@ public class Main {
     static final double MIN_WIN_AMOUNT = 50;
 
     public static void main(String[] args) throws IOException {
-        int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+                String portEnv = System.getenv("PORT");
+        int port = (portEnv != null)
+            ? Integer.parseInt(portEnv)
+            : (args.length > 0 ? Integer.parseInt(args[0]) : 8080);
         Config cfg = Config.load();
         store.getOrCreateDemoUser(cfg); // seed demo user with a non-zero balance
 
